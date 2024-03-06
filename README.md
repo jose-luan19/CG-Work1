@@ -1,1 +1,1 @@
-# Rasteriza-o
+# Rasterização de poligonos, curvas e retas 
