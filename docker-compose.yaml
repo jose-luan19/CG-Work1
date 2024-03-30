@@ -1,28 +1,30 @@
 version: '3'
 
 services:
-  retas: 
-    build: ./retas
-    container_name: retas
+  straight: 
+    build: ./straight
+    container_name: straight
     ports:
       - "5000:5000"
 
-  curvas: 
-    build: ./curvas
-    container_name: curvas
+  curves: 
+    build: ./curves
+    container_name: curves
     ports:
       - "5005:5005"
     volumes:
-      ./curvas/imagens/
+      ./curves:/app
 
-  poligonos: 
-    build: ./poligonos
-    container_name: poligonos
+  polygons: 
+    build: ./polygons
+    container_name: polygons
     ports:
       - "5010:5010"
+    volumes:
+      ./polygons:/app
 
-  interface: 
-    build: ./
-    container_name: interface
-    ports:
-      - "5015:5015"
+  # interface: 
+  #   build: ./
+  #   container_name: interface
+  #   ports:
+  #     - "5015:5015"

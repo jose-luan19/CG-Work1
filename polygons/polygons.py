@@ -3,9 +3,9 @@ import numpy as np
 import os
 
 # Função para mapear as coordenadas de -1 a 1 para a resolução desejada
-def map_coordinates(x, y, width, height):
-    mapped_x = int((x + 1) * (width / 2))
-    mapped_y = int((1 - y) * (height / 2))
+def map_coordinates(x, y, resolution_x, resolution_y):
+    mapped_x = int((x + 1) * (resolution_x / 2))
+    mapped_y = int((1 - y) * (resolution_y / 2))
     return mapped_x, mapped_y
 
 # Função para desenhar uma linha entre dois pontos
@@ -78,24 +78,23 @@ resolutions = [(100, 100), (300, 300), (800, 600), (1920, 1080)]
 colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0), (255, 0, 255), (0, 255, 255)]
 
 # Rasteriza as formas geométricas em cada resolução e exibe em janelas separadas
-for width, height in resolutions:
-    image = np.full((height, width, 3), 255, dtype=np.uint8)
+for resolution_x, resolution_y in resolutions:
+    image = np.full((resolution_y, resolution_x, 3), 255, dtype=np.uint8)
     shapes = [triangle1, triangle2, square1, square2, hexagon1, hexagon2]
     for i, shape in enumerate(shapes):
         color = colors[i]
-        adjusted_shape = [map_coordinates(x, y, width, height) for x, y in shape]
+        adjusted_shape = [map_coordinates(x, y, resolution_x, resolution_y) for x, y in shape]
         rasterize_polygon(adjusted_shape, image, color)
-    plt.imshow(image, extent=(0, width, 0, height), origin="upper")
-    plt.title(f'Resolução: {width}x{height}')
+    plt.imshow(image, extent=(0, resolution_x, 0, resolution_y), origin="upper")
+    plt.title(f'Resolução: {resolution_x}x{resolution_y}')
     plt.xlabel('Eixo X')
     plt.ylabel('Eixo Y')
     plt.grid(True)
+    file_name = f'image/polygons_{resolution_x}x{resolution_y}.png'
+    plt.savefig(file_name)
     plt.show()
 
-    file_name = f'image/poligonos_{width}x{height}.png'
-    plt.savefig(file_name)
-
     if os.path.exists(file_name):
-        print(f"Imagem salva com sucesso no arquivo {file_name}")
+        print(f"Saved image with success {file_name}")
     else:
-        print(f"A imagem não foi salva no arquivo {file_name}")
+        print(f"Fail to save image {file_name}")

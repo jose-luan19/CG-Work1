@@ -3,9 +3,9 @@ import tkinter.messagebox
 import customtkinter
 from matplotlib import pyplot as plt
 import numpy as np
-from curvas.curvas import rasterize_hermite_curve
-import poligonos.poligonos as poligonos
-import retas.retas as retas
+import curves.curves as curves
+import polygons.polygons as polygons
+import straight.straight as straight
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from PIL import Image, ImageDraw
 
@@ -425,8 +425,8 @@ class App(customtkinter.CTk):
             matriz_combined = np.zeros((height, width), dtype=int)
 
             for X1, Y1, X2, Y2 in coordenadas_retas:
-                scaled_x1, scaled_y1, scaled_x2, scaled_y2 = retas.normalization(X1, Y1, X2, Y2, width, height)
-                matriz_pixels = retas.DDA(scaled_x1, scaled_y1, scaled_x2, scaled_y2, width, height)
+                scaled_x1, scaled_y1, scaled_x2, scaled_y2 = straight.normalization(X1, Y1, X2, Y2, width, height)
+                matriz_pixels = straight.DDA(scaled_x1, scaled_y1, scaled_x2, scaled_y2, width, height)
                 matriz_combined += matriz_pixels
 
             matriz_pixels_list.append(matriz_combined)
@@ -520,8 +520,8 @@ class App(customtkinter.CTk):
             shapes = [triangle1, triangle2, square1, square2, hexagon1, hexagon2]
             for i, shape in enumerate(shapes):
                 color = colors[i]
-                adjusted_shape = [poligonos.map_coordinates(x, y, width, height) for x, y in shape]  #lista que armazena as coordenada ajustadas dos vértices da forma geometrica .usada para a resolução atual (ajuda a escalonar)
-                poligonos.rasterize_polygon(adjusted_shape, image, color)
+                adjusted_shape = [polygons.map_coordinates(x, y, width, height) for x, y in shape]  #lista que armazena as coordenada ajustadas dos vértices da forma geometrica .usada para a resolução atual (ajuda a escalonar)
+                polygons.rasterize_polygon(adjusted_shape, image, color)
                 
             
 
@@ -604,7 +604,7 @@ class App(customtkinter.CTk):
                         m1 = m1_list[i]
                         T_values = T_list[i]
                         # Após calcular as coordenadas da curva
-                        x_curve, y_curve = rasterize_hermite_curve(p0, p1, m0, m1, T_values, M)
+                        x_curve, y_curve = curves.rasterize_hermite_curve(p0, p1, m0, m1, T_values, M)
 
                         x_scale = width / 2
                         y_scale = height / 2
