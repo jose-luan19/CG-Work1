@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+  retas: 
+    build: ./retas
+    container_name: retas
+    ports:
+      - "5000:5000"
+
+  curvas: 
+    build: ./curvas
+    container_name: curvas
+    ports:
+      - "5005:5005"
+    volumes:
+      ./curvas/imagens/
+
+  poligonos: 
+    build: ./poligonos
+    container_name: poligonos
+    ports:
+      - "5010:5010"
+
+  interface: 
+    build: ./
+    container_name: interface
+    ports:
+      - "5015:5015"

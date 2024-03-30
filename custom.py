@@ -3,9 +3,9 @@ import tkinter.messagebox
 import customtkinter
 from matplotlib import pyplot as plt
 import numpy as np
-from curvas import rasterize_hermite_curve
-import poligonos
-import retas
+from curvas.curvas import rasterize_hermite_curve
+import poligonos.poligonos as poligonos
+import retas.retas as retas
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from PIL import Image, ImageDraw
 
