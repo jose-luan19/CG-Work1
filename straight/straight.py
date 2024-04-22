@@ -1,14 +1,13 @@
 import os
 import matplotlib.pyplot as plt
-import numpy as np
 import math
+import util
 
+def raster_points (X_start, Y_start, X_end, Y_end ): # RECEBE O PONTO INICIAL E O PONTO FINAL
 
-def rasterizacao_retas (X_start, Y_start, X_end, Y_end ): # RECEBE O PONTO INICIAL E O PONTO FINAL
-
-  x = X_start  # Declara o ponto inicial no eixo x de onde a reta será incrementada ou decrementada
-  y = Y_start  # Declara o ponto inicial no eixo y de onde a reta será incrementada ou decrementada
-  matriz_pixels = [(round(x),round(y))]
+  x = X_start  # DECLARA O PONTO INICIAL NO EIXO X DE ONDE A RETA SERÁ INCREMENTADA OU DECREMENTADA
+  y = Y_start  # DECLARA O PONTO INICIAL NO EIXO Y DE ONDE A RETA SERÁ INCREMENTADA OU DECREMENTADA
+  points = [(round(x),round(y))]
   
   dx = abs(X_end - X_start)  # VARIÁVEL QUE RECEBE O MÓDULO DA DIFERENÇA ENTRE X2 E X1
   dy = abs(Y_end - Y_start)  # VARIÁVEL QUE RECEBE O MÓDULO DA DIFERENÇA ENTRE Y_end E Y_start
@@ -18,71 +17,43 @@ def rasterizacao_retas (X_start, Y_start, X_end, Y_end ): # RECEBE O PONTO INICI
 
   b =  y - m * x
 
+  # ITERAR NO EIXO X
   if math.fabs(dx) >= math.fabs(dy):
-    step_x = 1 if X_start < X_end else -1
+    step_x = 1 if X_start < X_end else -1 # VERIFICA SE IRÁ INCREMENTAR OU DECREMENTAR
     while x != X_end:
       x += step_x
-      y = m * x + b
-      add_point(x, y, matriz_pixels)
+      y = m * x + b # ACHA O PONTO Y A PARTIR DA FUNÇÃO DE SEMI-RETA
+      util.add_point(x, y, points)
+
+  # ITERAR NO EIXO Y
   else:
-    step_y = 1 if Y_start < Y_end else -1
+    step_y = 1 if Y_start < Y_end else -1  # VERIFICA SE IRÁ INCREMENTAR OU DECREMENTAR
     while y != Y_end:
       y += step_y
       if m != 0:
-        x = (y - b) / m
-      add_point(x, y, matriz_pixels)
+        x = (y - b) / m # ACHA O PONTO X A PARTIR DA FUNÇÃO DE SEMI-RETA
+      util.add_point(x, y, points)
 
-  return matriz_pixels
+  return points
 
-def add_point(x, y, points):
-  points.append((round(x), round(y)))
-
-
-def normalization(X_start, Y_start, X_end, Y_end, width, height):
-    rmin = -1
-    rmax = 1
-
-    xs1 = (X_start - rmin) / (rmax - rmin)
-    ys1 = (Y_start - rmin) / (rmax - rmin)
-
-    xs2 = (X_end - rmin) / (rmax - rmin)
-    ys2 = (Y_end - rmin) / (rmax - rmin)
-
-    xs1 *= height - 0
-    ys1 *= width - 0
-    
-    xs2 *= height - 0
-    ys2 *= width - 0
-
-    xs1 += 0
-    ys1 += 0
-
-    xs2 += 0
-    ys2 += 0
-
-    return round(xs1), round(ys1), round(xs2), round(ys2)
-
-resolutions = [(100, 100), (300, 300), (800, 600), (1920, 1080)]
-
-
-X_start,Y_start,X_end,Y_end,width,height = 0,0,100,100
+# GERA 2 PONTOS ALEATORIOS ONDE AS COORDENADAS VARIAM DE -1 A 1 (NORMALIZADO)
+start_point_random = util.gen_point()
+end_point_random = util.gen_point()
 
 # PLOT DE GRÁFICO RASTERIZADO
-for width, height in resolutions:
-    plt.figure(2, figsize=[4,4])
-    matriz_pixels = rasterizacao_retas(X_start, Y_start, X_end, Y_end) # Chamada ao algoritmo rasterizacao_retas
+for width, height in util.get_resolutions():
+  start_point = util.normalization(*start_point_random, width, height)
+  end_point = util.normalization(*end_point_random, width, height)
+  points = raster_points(*start_point, *end_point) # ACHAR PONTOS COM UM ALGORITMO DE RASTERIZÇÃO
+  matrix = util.plot_raster(points) # INCLUIR OS PONTOS NA MATRIZ 
+  
 
-    plt.imshow(matriz_pixels, cmap='Blues', origin='lower')
-    plt.title('Rasterização de Reta usando rasterizacao_retas')
-    plt.xlabel('Coordenada X')
-    plt.ylabel('Coordenada Y')
-    plt.grid()
+  plt.imshow(matrix, cmap='Blues', extent=(0, width, 0, height), origin='lower')
+  plt.title('Rasterização de Reta usando rasterizacao_retas')
+  plt.xlabel('Coordenada X')
+  plt.ylabel('Coordenada Y')
+  plt.grid()
 
-    file_name = f'image/straight_{width}x{height}.png'
-    plt.savefig(file_name)
-    plt.show()
-
-    if os.path.exists(file_name):
-      print(f"Saved image with success {file_name}")
-    else:
-      print(f"Fail to save image {file_name}")
+  file_name = f'image/straight_{width}x{height}.png'
+  plt.savefig(file_name)
+  plt.show()

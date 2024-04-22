@@ -78,8 +78,3 @@ for resolution_x, resolution_y in resolutions:
     file_name = f'image/curve_{resolution_x}x{resolution_y}.png'
     plt.savefig(file_name)
     plt.show()
-
-    if os.path.exists(file_name):
-        print(f"Imagem salva com sucesso no arquivo {file_name}")
-    else:
-        print(f"A imagem não foi salva no arquivo {file_name}")

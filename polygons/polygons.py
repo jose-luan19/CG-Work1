@@ -93,8 +93,3 @@ for resolution_x, resolution_y in resolutions:
     file_name = f'image/polygons_{resolution_x}x{resolution_y}.png'
     plt.savefig(file_name)
     plt.show()
-
-    if os.path.exists(file_name):
-        print(f"Saved image with success {file_name}")
-    else:
-        print(f"Fail to save image {file_name}")
