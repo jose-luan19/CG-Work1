@@ -11,4 +11,4 @@ COPY . .
 
 EXPOSE 5010
 
-CMD ["python", "./poligonos.py"]
+CMD ["python", "polygons.py"]

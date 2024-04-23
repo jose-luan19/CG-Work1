@@ -1,7 +1,7 @@
-import os
 import matplotlib.pyplot as plt
 import math
 import util
+
 
 def raster_points (X_start, Y_start, X_end, Y_end ): # RECEBE O PONTO INICIAL E O PONTO FINAL
 

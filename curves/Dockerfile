@@ -11,4 +11,4 @@ COPY . .
 
 EXPOSE 5005
 
-CMD ["python", "./curvas.py"]
+CMD ["python", "curves.py"]
