@@ -3,9 +3,9 @@ import tkinter.messagebox
 import customtkinter
 from matplotlib import pyplot as plt
 import numpy as np
-import curves.curves as curves
-import polygons.polygons as polygons
-import line.line as line
+import curves as curves
+import polygons as polygons
+import line as line
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from PIL import Image, ImageDraw
 

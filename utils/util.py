@@ -20,7 +20,6 @@ def plot_raster(points, height, width):
   return matrix
 
 def gen_point():
-    print('cuidares')
     x = random.uniform(-1, 1)
     y = random.uniform(-1, 1)
 
