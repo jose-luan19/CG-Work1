@@ -3,9 +3,9 @@ import tkinter.messagebox
 import customtkinter
 from matplotlib import pyplot as plt
 import numpy as np
-import curves.curves as curves
-import polygons.polygons as polygons
-import straight.straight as straight
+import curves as curves
+import polygons as polygons
+import line as line
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from PIL import Image, ImageDraw
 
@@ -425,8 +425,8 @@ class App(customtkinter.CTk):
             matriz_combined = np.zeros((height, width), dtype=int)
 
             for X1, Y1, X2, Y2 in coordenadas_retas:
-                scaled_x1, scaled_y1, scaled_x2, scaled_y2 = straight.normalization(X1, Y1, X2, Y2, width, height)
-                matriz_pixels = straight.DDA(scaled_x1, scaled_y1, scaled_x2, scaled_y2, width, height)
+                scaled_x1, scaled_y1, scaled_x2, scaled_y2 = line.normalization(X1, Y1, X2, Y2, width, height)
+                matriz_pixels = line.DDA(scaled_x1, scaled_y1, scaled_x2, scaled_y2, width, height)
                 matriz_combined += matriz_pixels
 
             matriz_pixels_list.append(matriz_combined)

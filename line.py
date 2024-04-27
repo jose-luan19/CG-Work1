@@ -1,7 +1,6 @@
-import os
 import matplotlib.pyplot as plt
 import math
-import util
+import utils.util as util
 
 def raster_points (X_start, Y_start, X_end, Y_end ): # RECEBE O PONTO INICIAL E O PONTO FINAL
 
@@ -44,8 +43,8 @@ end_point_random = util.gen_point()
 for width, height in util.get_resolutions():
   start_point = util.normalization(*start_point_random, width, height)
   end_point = util.normalization(*end_point_random, width, height)
-  points = raster_points(*start_point, *end_point) # ACHAR PONTOS COM UM ALGORITMO DE RASTERIZÇÃO
-  matrix = util.plot_raster(points) # INCLUIR OS PONTOS NA MATRIZ 
+  points = raster_points(*start_point, *end_point) # ACHAR PONTOS COM O ALGORITMO DE RASTERIZÇÃO
+  matrix = util.plot_raster(points, width, height) # INCLUIR OS PONTOS NA MATRIZ 
   
 
   plt.imshow(matrix, cmap='Blues', extent=(0, width, 0, height), origin='lower')
@@ -54,6 +53,6 @@ for width, height in util.get_resolutions():
   plt.ylabel('Coordenada Y')
   plt.grid()
 
-  file_name = f'image/straight_{width}x{height}.png'
+  file_name = f'line-image/line{width}x{height}.png'
   plt.savefig(file_name)
   plt.show()

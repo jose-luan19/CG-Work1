@@ -90,6 +90,6 @@ for resolution_x, resolution_y in resolutions:
     plt.xlabel('Eixo X')
     plt.ylabel('Eixo Y')
     plt.grid(True)
-    file_name = f'image/polygons_{resolution_x}x{resolution_y}.png'
+    file_name = f'polygons-image/polygons_{resolution_x}x{resolution_y}.png'
     plt.savefig(file_name)
     plt.show()
