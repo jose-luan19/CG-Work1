@@ -8,24 +8,24 @@ def get_resolutions():
 def generate_matrix(fill_value, height, width):
     return np.full((height, width), fill_value, dtype=np.uint8)
 
-def add_point(x, y, points):
-  points.append((round(x), round(y)))
+def add_point(x_new, y_new, points):
+  points.append((round(x_new), round(y_new)))
 
 def plot_raster(points, height, width):
   matrix = generate_matrix(0, height, width)
-  for x, y in points:
-    if 0 <= y < height and 0 <= x < width:
-      matrix[math.floor(y)][math.floor(x)] = 1
+  for x_new, y_new in points:
+    if 0 <= y_new < height and 0 <= x_new < width:
+      matrix[math.floor(y_new)][math.floor(x_new)] = 1
 
   return matrix
 
 def gen_point():
-    x = random.uniform(-1, 1)
-    y = random.uniform(-1, 1)
+  x_new = random.uniform(-1, 1)
+  y_new = random.uniform(-1, 1)
 
-    return (x, y)
+  return (x_new, y_new)
 
-def normalization(X, Y, width, height):
+def denormalization(X, Y, width, height):
   rmin = -1
   rmax = 1
 
@@ -39,3 +39,118 @@ def normalization(X, Y, width, height):
   ys += 0
 
   return (round(xs), round(ys))
+
+def normalization(ponto):
+  x, y = ponto
+  x_normalizado = (x / 100) * 2 - 1
+  y_normalizado = (y / 100) * 2 - 1
+  return (x_normalizado, y_normalizado)
+
+INSIDE = 0    # 0000 
+LEFT = 1    # 0001
+RIGHT = 2   # 0010
+BOTTOM = 4  # 0100
+TOP = 8     # 1000
+
+def computeCode(point, window):
+  code = INSIDE
+  x_new , y_new = point
+  width, height = window
+
+  if x_new < 0:
+    code |= LEFT
+  elif x_new > width:
+    code |= RIGHT
+
+  if y_new < 0:
+    code |= BOTTOM
+  elif y_new > height:
+    code |= TOP
+
+  return code
+
+  # Encontra a interseção
+def findIntersection(code_out, start_point, end_point, window):
+  start_x, start_y = start_point
+  end_x, end_y = end_point
+  width, height = window
+
+  if code_out & TOP:
+    x_new = start_x + (end_x - start_x) * (height - start_y) / (end_y - start_y)
+    y_new = height
+  elif code_out & BOTTOM:
+    x_new = start_x + (end_x - start_x) * (0 - start_y) / (end_y - start_y)
+    y_new = 0
+  elif code_out & RIGHT:
+    y_new = start_y + (end_y - start_y) * (width - start_x) / (end_x - start_x)
+    x_new = width
+  elif code_out & LEFT:
+    y_new = start_y + (end_y - start_y) * (0 - start_x) / (end_x - start_x)
+    x_new = 0
+
+  return (x_new, y_new)
+
+# Função de recorte de linha utilizando o algoritmo de Cohen-Sutherland
+def cohenSutherland(start_point, end_point, window):
+  start_x, start_y = start_point
+  end_x, end_y = end_point
+
+  code1 = computeCode(start_point, window)
+  code2 = computeCode(end_point, window)
+  accept = False
+
+  while True:
+    if code1 == 0 and code2 == 0:  # Ambos os pontos estão dentro da janela
+      accept = True
+      break
+    elif code1 & code2 != 0:  # Os pontos estão ambos em uma região da janela
+      break
+    else:
+      # Escolhe um ponto fora da janela
+      x_new = 0
+      y_new = 0
+      if code1 != 0:
+        code_out = code1
+      else:
+        code_out = code2
+
+      x_new, y_new = findIntersection(code_out, start_point, end_point, window)
+
+      # Atualiza o ponto fora da janela
+      if code_out == code1:
+        start_x, start_y = x_new, y_new
+        code1 = computeCode((x_new, y_new), window)
+      else:
+        end_x, end_y = x_new, y_new
+        code2 = computeCode((x_new, y_new), window)
+
+  if accept:
+      return [(start_x, start_y), (end_x, end_y)]
+  else:
+      return []
+
+# Função de recorte de polígono utilizando o algoritmo de Cohen-Sutherland
+def clipPolygon(polygon, window):
+  clipped_polygon = []
+
+  # Recorte de cada lado do polígono
+  for i in range(len(polygon) - 1):
+    start_point = polygon[i]
+    end_point = polygon[i + 1]
+
+    clipped_segment = cohenSutherland(start_point, end_point, window)
+    if clipped_segment:
+      clipped_polygon.extend(clipped_segment)
+
+  return clipped_polygon
+
+
+# Função para determinar se um objeto é uma linha ou um polígono
+def isLine(object):
+    return len(object) == 2 and all(isinstance(coord, tuple) for coord in object)
+
+# Função principal que realiza o recorte em linhas e polígonos
+def clip(object, window):
+    if isLine(object):
+        return cohenSutherland(object[0], object[1], window)
+    return clipPolygon(object, window)

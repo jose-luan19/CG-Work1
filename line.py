@@ -35,14 +35,19 @@ def raster_points (X_start, Y_start, X_end, Y_end ): # RECEBE O PONTO INICIAL E 
 
   return points
 
-# GERA 2 PONTOS ALEATORIOS ONDE AS COORDENADAS VARIAM DE -1 A 1 (NORMALIZADO)
-start_point_random = util.gen_point()
-end_point_random = util.gen_point()
+
+# PONTOS
+line = ((10,10),(85,50))
+
+# NORMALIZAR OS PONTOS QUE DESEJA USAR PARA RASTERIZAR A LINHA, USA-SE COMO BASE A RESOLUÇÃO 100X100
+start_point_norm = util.normalization(line[0])
+end_point_norm = util.normalization(line[1])
 
 # PLOT DE GRÁFICO RASTERIZADO
 for width, height in util.get_resolutions():
-  start_point = util.normalization(*start_point_random, width, height)
-  end_point = util.normalization(*end_point_random, width, height)
+  # DENORMALIZANDO OS PONTOS PARA 
+  start_point = util.denormalization(*start_point_norm, width, height)
+  end_point = util.denormalization(*end_point_norm, width, height)
   points = raster_points(*start_point, *end_point) # ACHAR PONTOS COM O ALGORITMO DE RASTERIZÇÃO
   matrix = util.plot_raster(points, width, height) # INCLUIR OS PONTOS NA MATRIZ 
   
