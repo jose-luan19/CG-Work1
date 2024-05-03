@@ -70,21 +70,21 @@ def computeCode(point, window):
   return code
 
   # Encontra a interseção
-def findIntersection(code_out, start_point, end_point, window):
+def findIntersection(code_point_out, start_point, end_point, window):
   start_x, start_y = start_point
   end_x, end_y = end_point
   width, height = window
 
-  if code_out & TOP:
+  if code_point_out & TOP:
     x_new = start_x + (end_x - start_x) * (height - start_y) / (end_y - start_y)
     y_new = height
-  elif code_out & BOTTOM:
+  elif code_point_out & BOTTOM:
     x_new = start_x + (end_x - start_x) * (0 - start_y) / (end_y - start_y)
     y_new = 0
-  elif code_out & RIGHT:
+  elif code_point_out & RIGHT:
     y_new = start_y + (end_y - start_y) * (width - start_x) / (end_x - start_x)
     x_new = width
-  elif code_out & LEFT:
+  elif code_point_out & LEFT:
     y_new = start_y + (end_y - start_y) * (0 - start_x) / (end_x - start_x)
     x_new = 0
 
@@ -95,34 +95,34 @@ def cohenSutherland(start_point, end_point, window):
   start_x, start_y = start_point
   end_x, end_y = end_point
 
-  code1 = computeCode(start_point, window)
-  code2 = computeCode(end_point, window)
+  code_start_point = computeCode(start_point, window)
+  code_end_point = computeCode(end_point, window)
   accept = False
 
   while True:
-    if code1 == 0 and code2 == 0:  # Ambos os pontos estão dentro da janela
+    if code_start_point == 0 and code_end_point == 0:  # Ambos os pontos estão dentro da janela
       accept = True
       break
-    elif code1 & code2 != 0:  # Os pontos estão ambos em uma região da janela
+    elif code_start_point & code_end_point != 0:  # Os pontos estão ambos em uma região da janela
       break
     else:
       # Escolhe um ponto fora da janela
       x_new = 0
       y_new = 0
-      if code1 != 0:
-        code_out = code1
+      if code_start_point != 0:
+        code_point_out = code_start_point
       else:
-        code_out = code2
+        code_point_out = code_end_point
 
-      x_new, y_new = findIntersection(code_out, start_point, end_point, window)
+      x_new, y_new = findIntersection(code_point_out, start_point, end_point, window)
 
       # Atualiza o ponto fora da janela
-      if code_out == code1:
+      if code_point_out == code_start_point:
         start_x, start_y = x_new, y_new
-        code1 = computeCode((x_new, y_new), window)
+        code_start_point = computeCode((x_new, y_new), window)
       else:
         end_x, end_y = x_new, y_new
-        code2 = computeCode((x_new, y_new), window)
+        code_end_point = computeCode((x_new, y_new), window)
 
   if accept:
       return [(start_x, start_y), (end_x, end_y)]
@@ -133,12 +133,22 @@ def cohenSutherland(start_point, end_point, window):
 def clipPolygon(polygon, window):
   clipped_polygon = []
 
+  # Adiciona o primeiro ponto do polígono ao final para fechar o loop
+  polygon = polygon + (polygon[0],)
+
+  lenght_polygon = len(polygon)
   # Recorte de cada lado do polígono
-  for i in range(len(polygon) - 1):
+  for i in range(lenght_polygon - 1):
     start_point = polygon[i]
     end_point = polygon[i + 1]
+    
+    if i+1 == lenght_polygon-1:
+      clipped_segment = [start_point, clipped_polygon[0]]
+      clipped_polygon.extend(clipped_segment)
+      continue
+    else:
+      clipped_segment = cohenSutherland(start_point, end_point, window) 
 
-    clipped_segment = cohenSutherland(start_point, end_point, window)
     if clipped_segment:
       clipped_polygon.extend(clipped_segment)
 
@@ -152,5 +162,5 @@ def isLine(object):
 # Função principal que realiza o recorte em linhas e polígonos
 def clip(object, window):
     if isLine(object):
-        return cohenSutherland(object[0], object[1], window)
+      return cohenSutherland(object[0], object[1], window)
     return clipPolygon(object, window)

@@ -37,11 +37,16 @@ def raster_points (X_start, Y_start, X_end, Y_end ): # RECEBE O PONTO INICIAL E 
 
 
 # PONTOS
-line = ((10,10),(85,50))
+line = ((10,10),(120,150))
+
+line_cliping = util.clip(line, (100,100)) # exemplo com recorte numa janela de 100x100
+
+triangle_clip = util.clip(((-2, -10), (75, 50), (50, 10)), (100,100)) # exemplo com recorte numa janela de 100x100
 
 # NORMALIZAR OS PONTOS QUE DESEJA USAR PARA RASTERIZAR A LINHA, USA-SE COMO BASE A RESOLUÇÃO 100X100
-start_point_norm = util.normalization(line[0])
-end_point_norm = util.normalization(line[1])
+start_point_norm = util.normalization(line_cliping[0])
+end_point_norm = util.normalization(line_cliping[1])
+
 
 # PLOT DE GRÁFICO RASTERIZADO
 for width, height in util.get_resolutions():
