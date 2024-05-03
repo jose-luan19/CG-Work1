@@ -8,22 +8,22 @@ def get_resolutions():
 def generate_matrix(fill_value, height, width):
     return np.full((height, width), fill_value, dtype=np.uint8)
 
-def add_point(x_new, y_new, points):
-  points.append((round(x_new), round(y_new)))
+def add_point(x, y, points):
+  points.append((round(x), round(y)))
 
 def plot_raster(points, height, width):
   matrix = generate_matrix(0, height, width)
-  for x_new, y_new in points:
-    if 0 <= y_new < height and 0 <= x_new < width:
-      matrix[math.floor(y_new)][math.floor(x_new)] = 1
+  for x, y in points:
+    if 0 <= y < height and 0 <= x < width:
+      matrix[math.floor(y)][math.floor(x)] = 1
 
   return matrix
 
 def gen_point():
-  x_new = random.uniform(-1, 1)
-  y_new = random.uniform(-1, 1)
+  x = random.uniform(-1, 1)
+  y = random.uniform(-1, 1)
 
-  return (x_new, y_new)
+  return (x, y)
 
 def denormalization(X, Y, width, height):
   rmin = -1
@@ -54,17 +54,17 @@ TOP = 8     # 1000
 
 def computeCode(point, window):
   code = INSIDE
-  x_new , y_new = point
+  x , y = point
   width, height = window
 
-  if x_new < 0:
+  if x < 0:
     code |= LEFT
-  elif x_new > width:
+  elif x > width:
     code |= RIGHT
 
-  if y_new < 0:
+  if y < 0:
     code |= BOTTOM
-  elif y_new > height:
+  elif y > height:
     code |= TOP
 
   return code
