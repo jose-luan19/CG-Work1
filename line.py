@@ -35,26 +35,29 @@ def raster_points (X_start, Y_start, X_end, Y_end ): # RECEBE O PONTO INICIAL E 
 
   return points
 
-
 # PONTOS
-line = ((10,10),(120,150))
+lines = [((10,10),(120,150)), ((30,40),(100,10)), ((50,50),(10,15)), ((10,80),(200,80))]
 
-line_cliping = util.clip(line, (100,100)) # exemplo com recorte numa janela de 100x100
+# triangle_clip = util.clip(((-2, -10), (75, 50), (50, 10)), (100,100)) # exemplo com recorte numa janela de 100x100
 
-triangle_clip = util.clip(((-2, -10), (75, 50), (50, 10)), (100,100)) # exemplo com recorte numa janela de 100x100
-
-# NORMALIZAR OS PONTOS QUE DESEJA USAR PARA RASTERIZAR A LINHA, USA-SE COMO BASE A RESOLUÇÃO 100X100
-start_point_norm = util.normalization(line_cliping[0])
-end_point_norm = util.normalization(line_cliping[1])
 
 
 # PLOT DE GRÁFICO RASTERIZADO
 for width, height in util.get_resolutions():
-  # DENORMALIZANDO OS PONTOS PARA 
-  start_point = util.denormalization(*start_point_norm, width, height)
-  end_point = util.denormalization(*end_point_norm, width, height)
-  points = raster_points(*start_point, *end_point) # ACHAR PONTOS COM O ALGORITMO DE RASTERIZÇÃO
-  matrix = util.plot_raster(points, width, height) # INCLUIR OS PONTOS NA MATRIZ 
+  matrix = util.generate_matrix(0, width, height)
+
+  for line in lines:
+    line_cliping = util.clip(line, (100,100)) # exemplo com recorte numa janela de 100x100
+
+    # NORMALIZAR OS PONTOS QUE DESEJA USAR PARA RASTERIZAR A LINHA, USA-SE COMO BASE A RESOLUÇÃO 100X100
+    start_point_norm = util.normalization(line_cliping[0])
+    end_point_norm = util.normalization(line_cliping[1])
+
+    # DENORMALIZANDO OS PONTOS PARA 
+    start_point = util.denormalization(*start_point_norm, width, height)
+    end_point = util.denormalization(*end_point_norm, width, height)
+    points = raster_points(*start_point, *end_point) # ACHAR PONTOS COM O ALGORITMO DE RASTERIZÇÃO
+    matrix = util.plot_raster(points, width, height, matrix) # INCLUIR OS PONTOS NA MATRIZ 
   
 
   plt.imshow(matrix, cmap='Blues', extent=(0, width, 0, height), origin='lower')

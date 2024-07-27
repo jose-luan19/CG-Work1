@@ -7,12 +7,12 @@ from PIL import Image, ImageDraw
 # Quantidade de amostras
 N = 1000
 
-
 # Defina a matriz de transformação de Hermite
 M = np.array([[2, -2, 1, 1],
               [-3, 3, -2, -1],
               [0, 0, 1, 0],
-              [1, 0, 0, 0]])
+              [1, 0, 0, 0]
+            ])
 
 
 def find_point(t_x, p0, p1, m0, m1):
@@ -43,14 +43,33 @@ def rasterize_hermite_curve(p0, p1, m0, m1):
 resolutions = [(100, 100), (300, 300), (800, 600), (1920, 1080)]
 
 # Defina as listas de pontos de controle p0, p1, m0 e m1 para as 5 curvas
-p0_list = [np.array([0.0, 0.0, 0.0]), np.array([0.0, 0.0, 0.0]), np.array([0.0, 0.0, 0.0]), np.array([0.0, 0.0, 0.0]), np.array([0.0, 0.0, 0.0])]
-p1_list = [np.array([1.0, 1.0, 0.0]), np.array([-1.0, 1.0, 0.0]), np.array([-1.0, -1.0, 0.0]), np.array([1.0, -1.0, 0.0]), np.array([0.0, 0.0, 0.0])]
-m0_list = [np.array([5.0, 0.0, 0.0]), np.array([-5.0, 0.0, 0.0]), np.array([0.0, -5.0, 0.0]), np.array([0.0, -5.0, 0.0]), np.array([0.0, 0.0, 0.0])]
-m1_list = [np.array([5.0, 0.0, 0.0]), np.array([-5.0, 0.0, 0.0]), np.array([0.0, -5.0, 0.0]), np.array([0.0, -5.0, 0.0]), np.array([0.0, 0.0, 0.0])]
+p0_list = [np.array([0.0, 0.0, 0.0]), 
+           np.array([0.0, 0.0, 0.0]), 
+           np.array([0.0, 0.0, 0.0]), 
+           np.array([0.0, 0.0, 0.0]), 
+           np.array([0.0, 0.0, 0.0])]
+
+p1_list = [np.array([1.0, 1.0, 0.0]), 
+           np.array([-1.0, 1.0, 0.0]), 
+           np.array([-1.0, -1.0, 0.0]), 
+           np.array([1.0, -1.0, 0.0]), 
+           np.array([0.0, 0.0, 0.0])]
+
+m0_list = [np.array([5.0, 0.0, 0.0]), 
+           np.array([-5.0, 0.0, 0.0]), 
+           np.array([0.0, -5.0, 0.0]), 
+           np.array([0.0, -5.0, 0.0]), 
+           np.array([0.0, 0.0, 0.0])]
+
+m1_list = [np.array([5.0, 0.0, 0.0]), 
+           np.array([-5.0, 0.0, 0.0]), 
+           np.array([0.0, -5.0, 0.0]), 
+           np.array([0.0, -5.0, 0.0]), 
+           np.array([0.0, 0.0, 0.0])]
 
 for resolution_x, resolution_y in resolutions:
-    # Crie uma nova imagem PIL, ou seja uma imagem de funto preto
-    image = Image.new('RGB', (resolution_x, resolution_y), color=(0, 0, 0))
+    # Crie uma nova imagem PIL, ou seja uma imagem de fundo branco
+    image = Image.new('RGB', (resolution_x, resolution_y), color=(255, 255, 255))
     # Cria objeto que será usado para desenhar na imagem que está associada
     draw = ImageDraw.Draw(image)
 
@@ -66,13 +85,13 @@ for resolution_x, resolution_y in resolutions:
         x_scale = resolution_x / 2
         y_scale = resolution_y / 2
 
-        # Faz a Rasterização da curva na Imagem PIL usando o draw com uma linha branca
+        # Faz a Rasterização da curva na Imagem PIL usando o draw com uma linha preta
         for j in range(1, N):
             x0 = int(round(x_curve[j - 1] * x_scale + resolution_x / 2))
             y0 = int(round(y_curve[j - 1] * y_scale + resolution_y / 2))
             x1 = int(round(x_curve[j] * x_scale + resolution_x / 2))
             y1 = int(round(y_curve[j] * y_scale + resolution_y / 2))
-            draw.line((x0, y0, x1, y1), fill=(255, 255, 255), width=1)
+            draw.line((x0, y0, x1, y1), fill=(0, 0, 0), width=1)
 
     plt.figure(figsize=(6, 6))
     plt.imshow(image, extent=(0, resolution_x, 0, resolution_y),origin='lower')
