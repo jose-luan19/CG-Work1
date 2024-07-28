@@ -98,7 +98,7 @@ for resolution_x, resolution_y in resolutions:
 
     plt.xlabel('Eixo X')
     plt.ylabel('Eixo Y')
-    plt.title(f'Curvas de Hermite Rasterizadas ({resolution_x}x{resolution_y})')
+    plt.title(f'Cuve - Resolution: {resolution_x}x{resolution_y}')
     plt.grid(True)
     file_name = f'curves-image/curve_{resolution_x}x{resolution_y}.png'
     plt.savefig(file_name)

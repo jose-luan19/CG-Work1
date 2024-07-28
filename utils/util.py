@@ -1,3 +1,4 @@
+import json
 import math
 import random
 import numpy as np
@@ -156,10 +157,38 @@ def clipPolygon(polygon, window):
 
 # Função para determinar se um objeto é uma linha ou um polígono
 def isLine(object):
-    return len(object) == 2 and all(isinstance(coord, tuple) for coord in object)
+  return len(object) == 2 and all(isinstance(coord, tuple) for coord in object)
 
 # Função principal que realiza o recorte em linhas e polígonos
 def clip(object, window):
-    if isLine(object):
-      return cohenSutherland(object[0], object[1], window)
-    return clipPolygon(object, window)
+  if isLine(object):
+    return cohenSutherland(object[0], object[1], window)
+  return clipPolygon(object, window)
+
+def readFile():
+  with open("data.json", "r") as f:
+    return json.load(f)
+
+def convert_lines(points):
+  if len(points) % 2 != 0:
+    raise ValueError("A lista de pontos para linhas deve ter um número par de elementos.")
+  
+  # Cria uma lista de tuplas, onde cada tupla contém duas tuplas de pontos
+  return [((tuple(points[i]), tuple(points[i+1]))) for i in range(0, len(points), 2)]
+
+def convert_polygon(points):
+  # Converte a lista de pontos para uma tupla de tuplas
+  return tuple(tuple(point) for point in points)
+
+def convert_to_tuples(data):
+  points = data["points"]
+  
+  if data["figura"] == "Line":
+    return convert_lines(points)
+  elif data["figura"] == "Polygon":
+    return convert_polygon(points)
+  elif data["figura"] == "Curve":
+    print("Not Implemented")
+    # return convert_curve(points)
+  else:
+    raise ValueError("Tipo de figura desconhecido.")

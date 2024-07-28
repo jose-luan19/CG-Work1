@@ -36,11 +36,13 @@ def raster_points (X_start, Y_start, X_end, Y_end ): # RECEBE O PONTO INICIAL E 
   return points
 
 # PONTOS
-lines = [((10,10),(120,150)), ((30,40),(100,10)), ((50,50),(10,15)), ((10,80),(200,80))]
+# lines = [((30,40),(30,70)), ((60,20),(90,60)), ((10,80),(200,80)), ((60,40),(10,10))]
+data = util.readFile()
+lines = util.convert_to_tuples(data)
 
 # triangle_clip = util.clip(((-2, -10), (75, 50), (50, 10)), (100,100)) # exemplo com recorte numa janela de 100x100
 
-
+polygon = util.clip(lines, (100,100))
 
 # PLOT DE GRÁFICO RASTERIZADO
 for width, height in util.get_resolutions():
@@ -61,9 +63,9 @@ for width, height in util.get_resolutions():
   
 
   plt.imshow(matrix, cmap='Blues', extent=(0, width, 0, height), origin='lower')
-  plt.title('Rasterização de Reta usando rasterizacao_retas')
-  plt.xlabel('Coordenada X')
-  plt.ylabel('Coordenada Y')
+  plt.title(f'Line - Resolution: {width}x{height}')
+  plt.xlabel('Eixo X')
+  plt.ylabel('Eixo Y')
   plt.grid()
 
   file_name = f'line-image/line{width}x{height}.png'
