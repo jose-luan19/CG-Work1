@@ -8,8 +8,8 @@ def raster_points (X_start, Y_start, X_end, Y_end ): # RECEBE O PONTO INICIAL E 
   y = Y_start  # DECLARA O PONTO INICIAL NO EIXO Y DE ONDE A RETA SERÁ INCREMENTADA OU DECREMENTADA
   points = [(round(x),round(y))]
   
-  dx = abs(X_end - X_start)  # VARIÁVEL QUE RECEBE O MÓDULO DA DIFERENÇA ENTRE X2 E X1
-  dy = abs(Y_end - Y_start)  # VARIÁVEL QUE RECEBE O MÓDULO DA DIFERENÇA ENTRE Y_end E Y_start
+  dx = X_end - X_start  # VARIÁVEL QUE RECEBE O MÓDULO DA DIFERENÇA ENTRE X2 E X1
+  dy = Y_end - Y_start  # VARIÁVEL QUE RECEBE O MÓDULO DA DIFERENÇA ENTRE Y_end E Y_start
 
   # FUNÇÃO SEMI-RETA: y = m * x + b
   m = 0 if dx == 0 else dy / dx
@@ -36,24 +36,24 @@ def raster_points (X_start, Y_start, X_end, Y_end ): # RECEBE O PONTO INICIAL E 
   return points
 
 # PONTOS
-# lines = [((30,40),(30,70)), ((60,20),(90,60)), ((10,80),(200,80)), ((60,40),(10,10))]
-data = util.readFile()
-lines = util.convert_to_tuples(data)
+lines = [((30,40),(30,70)), ((60,20),(90,60)), ((10,80),(200,80)), ((60,40),(10,10)), ((60,25), (25,10)), ((80,20),(90,5)), ((50,75),(76,50))]
+# lines = [((80,20),(90,5)), ((90,30),(70,50))]
+# data = util.readFile()
+# lines = util.convert_to_tuples(data)
 
 # triangle_clip = util.clip(((-2, -10), (75, 50), (50, 10)), (100,100)) # exemplo com recorte numa janela de 100x100
-
-polygon = util.clip(lines, (100,100))
+# polygon = util.clip(lines, (100,100))
 
 # PLOT DE GRÁFICO RASTERIZADO
 for width, height in util.get_resolutions():
   matrix = util.generate_matrix(0, width, height)
 
   for line in lines:
-    line_cliping = util.clip(line, (100,100)) # exemplo com recorte numa janela de 100x100
+    lines_cliping = util.clip(line, (100,100)) # exemplo com recorte numa janela de 100x100
 
     # NORMALIZAR OS PONTOS QUE DESEJA USAR PARA RASTERIZAR A LINHA, USA-SE COMO BASE A RESOLUÇÃO 100X100
-    start_point_norm = util.normalization(line_cliping[0])
-    end_point_norm = util.normalization(line_cliping[1])
+    start_point_norm = util.normalization(lines_cliping[0])
+    end_point_norm = util.normalization(lines_cliping[1])
 
     # DENORMALIZANDO OS PONTOS PARA 
     start_point = util.denormalization(*start_point_norm, width, height)
