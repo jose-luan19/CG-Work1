@@ -41,15 +41,13 @@ lines = [((30,40),(30,70)), ((60,20),(90,60)), ((10,80),(200,80)), ((60,40),(10,
 # data = util.readFile()
 # lines = util.convert_to_tuples(data)
 
-# triangle_clip = util.clip(((-2, -10), (75, 50), (50, 10)), (100,100)) # exemplo com recorte numa janela de 100x100
-# polygon = util.clip(lines, (100,100))
 
 # PLOT DE GRÁFICO RASTERIZADO
 for width, height in util.get_resolutions():
   matrix = util.generate_matrix(0, width, height)
 
   for line in lines:
-    lines_cliping = util.clip(line, (100,100)) # exemplo com recorte numa janela de 100x100
+    lines_cliping = util.clip_line(line, (100,100)) # exemplo com recorte numa janela de 100x100
 
     # NORMALIZAR OS PONTOS QUE DESEJA USAR PARA RASTERIZAR A LINHA, USA-SE COMO BASE A RESOLUÇÃO 100X100
     start_point_norm = util.normalization(lines_cliping[0])

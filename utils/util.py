@@ -155,15 +155,13 @@ def clipPolygon(polygon, window):
   return clipped_polygon
 
 
-# Função para determinar se um objeto é uma linha ou um polígono
-def isLine(object):
-  return len(object) == 2 and all(isinstance(coord, tuple) for coord in object)
-
-# Função principal que realiza o recorte em linhas e polígonos
-def clip(object, window):
-  if isLine(object):
-    return cohenSutherland(object[0], object[1], window)
+# Função que realiza o recorte em polígonos
+def clip_polygon(object, window):
   return clipPolygon(object, window)
+
+# Função que realiza o recorte em linhas
+def clip_line(object, window):
+  return cohenSutherland(object[0], object[1], window)
 
 def readFile():
   with open("data.json", "r") as f:

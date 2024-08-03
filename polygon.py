@@ -64,10 +64,10 @@ def rasterize_polygon(vertices, image, color):
             draw_line(x1, y, x2, y, image, color)
 
 # Define as coordenadas dos vértices dos triângulos, quadrados e hexágonos no intervalo de -1 a 1
-# triangle1 = [(-1, -1),(-0.75, -0.50), 
-#              (-0.75, -0.50),(-0.50, -1), 
-#              (-0.50, -1), (-1, -1)
-#             ]
+triangle1 = [(-1, -1),(-0.75, -0.50), 
+             (-0.75, -0.50),(-0.50, -1), 
+             (-0.50, -1), (-1, -1)
+            ]
 triangle2 = [(-0.25, -0.5),(0.25, -0.5), 
              (0.25, -0.5),(0, 0), 
              (0, 0),(-0.25, -0.5)
@@ -99,14 +99,16 @@ hexagon2 = [(0.95, 0.75), (0.85, 0.92),
             (0.85, 0.58), (0.95, 0.75)
             ]
 
+square = [(-0.8, -0.8), (-0.8, -0.4), (-0.8, -0.4), (-0.4, -0.4), (-0.4, -0.4), (-0.4, -0.8), (-0.4, -0.8), (-0.8, -0.8)]
+
 data = util.readFile()
 lines = util.convert_to_tuples(data)
 
 # triangle_clip = util.clip(((-2, -10), (75, 50), (50, 10)), (100,100)) # exemplo com recorte numa janela de 100x100
-triangle1 = []
-triangle1_clipped = util.clip(lines, (100,100))
-for point in triangle1_clipped:
-    triangle1.append(util.normalization(point))
+polygon = []
+polygon_clipped = util.clip_polygon(lines, (100,100))
+for point in polygon_clipped:
+    polygon.append(util.normalization(point))
 
 # Lista de resoluções
 # resolutions = [(100, 100)]
@@ -117,8 +119,8 @@ colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0), (255, 0, 255), (
 # Rasteriza as formas geométricas em cada resolução e exibe em janelas separadas
 for resolution_x, resolution_y in resolutions:
     image = np.full((resolution_y, resolution_x, 3), 255, dtype=np.uint8)
-    # shapes = [triangle1, triangle2, square1, square2, hexagon1, hexagon2]
-    shapes = [triangle1]
+    shapes = [triangle1, triangle2, square1, square2, hexagon1, hexagon2]
+    # shapes = [square]
     for i, shape in enumerate(shapes):
         color = colors[i]
         adjusted_shape = [map_coordinates(x, y, resolution_x, resolution_y) for x, y in shape]
