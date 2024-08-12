@@ -102,13 +102,17 @@ hexagon2 = [(0.95, 0.75), (0.85, 0.92),
 square = [(-0.8, -0.8), (-0.8, -0.4), (-0.8, -0.4), (-0.4, -0.4), (-0.4, -0.4), (-0.4, -0.8), (-0.4, -0.8), (-0.8, -0.8)]
 
 data = util.readFile()
-lines = util.convert_to_tuples(data)
+figures = util.convert_to_tuples(data)
 
 # triangle_clip = util.clip(((-2, -10), (75, 50), (50, 10)), (100,100)) # exemplo com recorte numa janela de 100x100
-polygon = []
-polygon_clipped = util.clip_polygon(lines, (100,100))
-for point in polygon_clipped:
-    polygon.append(util.normalization(point))
+polygons = []
+for fig in figures:
+    polygon_clipped = util.clip_polygon(fig, (100,100))
+    polygons_norm = []
+    for point in polygon_clipped:
+        polygons_norm.append(util.normalization(point))
+        
+    polygons.append(polygons_norm)
 
 # Lista de resoluções
 # resolutions = [(100, 100)]

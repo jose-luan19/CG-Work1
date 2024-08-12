@@ -174,9 +174,16 @@ def convert_lines(points):
   # Cria uma lista de tuplas, onde cada tupla contém duas tuplas de pontos
   return [((tuple(points[i]), tuple(points[i+1]))) for i in range(0, len(points), 2)]
 
+# Converte a lista de pontos para uma tupla de tuplas
 def convert_polygon(points):
-  # Converte a lista de pontos para uma tupla de tuplas
-  return tuple(tuple(point) for point in points)
+  shapes = []  
+  if points["Triangle"]:
+    shapes.append(tuple(tuple(point) for point in points["Triangle"]))
+  if points["Square"]:
+    shapes.append(tuple(tuple(point) for point in points["Square"]))
+  if points["Hexagon"]:
+    shapes.append(tuple(tuple(point) for point in points["Hexagon"]))
+  return shapes
 
 def convert_to_tuples(data):
   points = data["points"]

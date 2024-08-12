@@ -1,9 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
-from PIL import Image, ImageTk
 import subprocess
 import json
-import os
 
 class ImageApp:
     def __init__(self, root):
@@ -116,22 +114,57 @@ class ImageApp:
 
     def submit(self):
         figura = self.figura_var.get()
-        points = []
-        try:
-            for i in range(0, len(self.points_entries), 2):
-                if self.points_entries[i].get() == '':
-                    continue
-                x = int(self.points_entries[i].get())
-                y = int(self.points_entries[i+1].get())
-                points.append((x, y))
-        except ValueError:
-            messagebox.showerror("Input Error", "Please enter valid integer points for x and y")
-            return
+        if figura == "Polygon":
+            points = {
+                "Triangle": [],
+                "Square": [],
+                "Hexagon": []
+            }
 
-        data = {
-            "figura": figura,
-            "points": points
-        }
+            num_points = [3, 4, 6]  # Número de pontos para Triângulo, Quadrado e Hexágono
+            titles = ["Triangle", "Square", "Hexagon"]
+            # column_offset = [0, 4, 8]  # Deslocamento da coluna para cada tipo de polígono
+
+            try:
+                entry_index = 0
+                for j, title in enumerate(titles):
+                    for i in range(num_points[j]):
+                        # Obtém as entradas de x e y na ordem correta
+                        x = self.points_entries[entry_index].get()
+                        y = self.points_entries[entry_index + 1].get()
+
+                        if x == '' or y == '':
+                            entry_index += 2
+                            continue
+
+                        points[title].append((int(x), int(y)))
+                        entry_index += 2
+            except ValueError:
+                messagebox.showerror("Input Error", "Please enter valid integer points for x and y")
+                return
+
+            data = {
+                "figura": figura,
+                "points": points
+            }
+
+        else:
+            points = []
+            try:
+                for i in range(0, len(self.points_entries), 2):
+                    if self.points_entries[i].get() == '':
+                        continue
+                    x = int(self.points_entries[i].get())
+                    y = int(self.points_entries[i + 1].get())
+                    points.append((x, y))
+            except ValueError:
+                messagebox.showerror("Input Error", "Please enter valid integer points for x and y")
+                return
+
+            data = {
+                "figura": figura,
+                "points": points
+            }
 
         with open("data.json", "w") as f:
             json.dump(data, f)
