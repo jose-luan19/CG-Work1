@@ -1,3 +1,4 @@
+import json
 import math
 import random
 import numpy as np
@@ -154,12 +155,66 @@ def clipPolygon(polygon, window):
   return clipped_polygon
 
 
-# Função para determinar se um objeto é uma linha ou um polígono
-def isLine(object):
-    return len(object) == 2 and all(isinstance(coord, tuple) for coord in object)
+# Função que realiza o recorte em polígonos
+def clip_polygon(object, window):
+  return clipPolygon(object, window)
 
-# Função principal que realiza o recorte em linhas e polígonos
-def clip(object, window):
-    if isLine(object):
-      return cohenSutherland(object[0], object[1], window)
-    return clipPolygon(object, window)
+# Função que realiza o recorte em linhas
+def clip_line(object, window):
+  return cohenSutherland(object[0], object[1], window)
+
+def readFile():
+  with open("data.json", "r") as f:
+    return json.load(f)
+
+# Converte a lista de pontos de linhas para uma lista de tuplas de tuplas
+def convert_lines(points):
+  # Cada elemento de 'points' é uma linha com duas tuplas de pontos
+  return [((tuple(line[0]), tuple(line[1]))) for line in points]
+
+
+def convert_curves(points):
+  p0_list, p1_list, m0_list, m1_list = [], [], [], []
+
+  for curve in points:
+    p0 = np.append(np.array(normalization(curve[0])), [0.0])
+    p1 = np.append(np.array(normalization(curve[1])), [0.0])
+    m0 = np.append(np.array(normalization(curve[2])), [0.0])
+    m1 = np.append(np.array(normalization(curve[3])), [0.0])
+
+    p0_list.append(p0)
+    p1_list.append(p1)  
+    m0_list.append(m0)
+    m1_list.append(m1)
+
+  return p0_list, p1_list, m0_list, m1_list
+
+# Converte a lista de pontos de polígonos para uma lista de tuplas de tuplas
+def convert_polygon(points):
+  shapes = []  
+  if points["Triangle"]:
+    shapes.append(tuple(tuple(point) for point in points["Triangle"]))
+  if points["Square"]:
+    shapes.append(tuple(tuple(point) for point in points["Square"]))
+  if points["Hexagon"]:
+    shapes.append(tuple(tuple(point) for point in points["Hexagon"]))
+  return shapes
+
+# Converte os dados para tuplas de acordo com o tipo de figura
+def convert_to_tuples(data):
+  points = data["points"]
+  
+  if data["figura"] == "Line":
+    return convert_lines(points)
+  elif data["figura"] == "Polygon":
+    return convert_polygon(points)
+  elif data["figura"] == "Curve":
+    return convert_curves(points)
+  else:
+    raise ValueError("Tipo de figura desconhecido.")
+
+#Examples json
+  
+# {"figura": "Line", "points": [[[1, 1], [1, 1]], [[2, 2], [2, 2]], [[3, 3], [3, 3]], [[4, 4], [4, 4]]]}
+# {"figura": "Curve", "points": [[[1, 1], [1, 1], [1, 1], [1, 1]], [[2, 2], [2, 2], [2, 2], [2, 2]], [[3, 3], [3, 3], [3, 3], [3, 3]], [[4, 4], [4, 4], [4, 4], [4, 4]]]}
+# {"figura": "Polygon", "points": {"Triangle": [[10, 10], [20, 20], [30, 10]], "Square": [[70,60],[70,75],[85,75],[85,60]], "Hexagon": [[15, 55], [30, 70], [50, 70], [65, 55], [50, 40], [30, 40]]}}

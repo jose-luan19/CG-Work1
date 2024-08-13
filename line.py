@@ -8,8 +8,8 @@ def raster_points (X_start, Y_start, X_end, Y_end ): # RECEBE O PONTO INICIAL E 
   y = Y_start  # DECLARA O PONTO INICIAL NO EIXO Y DE ONDE A RETA SERÁ INCREMENTADA OU DECREMENTADA
   points = [(round(x),round(y))]
   
-  dx = abs(X_end - X_start)  # VARIÁVEL QUE RECEBE O MÓDULO DA DIFERENÇA ENTRE X2 E X1
-  dy = abs(Y_end - Y_start)  # VARIÁVEL QUE RECEBE O MÓDULO DA DIFERENÇA ENTRE Y_end E Y_start
+  dx = X_end - X_start  # VARIÁVEL QUE RECEBE O MÓDULO DA DIFERENÇA ENTRE X2 E X1
+  dy = Y_end - Y_start  # VARIÁVEL QUE RECEBE O MÓDULO DA DIFERENÇA ENTRE Y_end E Y_start
 
   # FUNÇÃO SEMI-RETA: y = m * x + b
   m = 0 if dx == 0 else dy / dx
@@ -36,10 +36,10 @@ def raster_points (X_start, Y_start, X_end, Y_end ): # RECEBE O PONTO INICIAL E 
   return points
 
 # PONTOS
-lines = [((10,10),(120,150)), ((30,40),(100,10)), ((50,50),(10,15)), ((10,80),(200,80))]
+lines = [((30,40),(30,70)), ((60,20),(90,60)), ((10,80),(200,80)), ((60,40),(10,10)), ((60,25), (25,10)), ((80,20),(90,5)), ((50,75),(76,50))]
 
-# triangle_clip = util.clip(((-2, -10), (75, 50), (50, 10)), (100,100)) # exemplo com recorte numa janela de 100x100
-
+data = util.readFile()
+lines = util.convert_to_tuples(data)
 
 
 # PLOT DE GRÁFICO RASTERIZADO
@@ -47,23 +47,24 @@ for width, height in util.get_resolutions():
   matrix = util.generate_matrix(0, width, height)
 
   for line in lines:
-    line_cliping = util.clip(line, (100,100)) # exemplo com recorte numa janela de 100x100
+    lines_cliping = util.clip_line(line, (100,100)) # exemplo com recorte numa janela de 100x100
 
     # NORMALIZAR OS PONTOS QUE DESEJA USAR PARA RASTERIZAR A LINHA, USA-SE COMO BASE A RESOLUÇÃO 100X100
-    start_point_norm = util.normalization(line_cliping[0])
-    end_point_norm = util.normalization(line_cliping[1])
+    start_point_norm = util.normalization(lines_cliping[0])
+    end_point_norm = util.normalization(lines_cliping[1])
 
     # DENORMALIZANDO OS PONTOS PARA 
     start_point = util.denormalization(*start_point_norm, width, height)
     end_point = util.denormalization(*end_point_norm, width, height)
+    
     points = raster_points(*start_point, *end_point) # ACHAR PONTOS COM O ALGORITMO DE RASTERIZÇÃO
     matrix = util.plot_raster(points, width, height, matrix) # INCLUIR OS PONTOS NA MATRIZ 
   
 
   plt.imshow(matrix, cmap='Blues', extent=(0, width, 0, height), origin='lower')
-  plt.title('Rasterização de Reta usando rasterizacao_retas')
-  plt.xlabel('Coordenada X')
-  plt.ylabel('Coordenada Y')
+  plt.title(f'Line - Resolution: {width}x{height}')
+  plt.xlabel('Eixo X')
+  plt.ylabel('Eixo Y')
   plt.grid()
 
   file_name = f'line-image/line{width}x{height}.png'
