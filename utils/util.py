@@ -167,14 +167,29 @@ def readFile():
   with open("data.json", "r") as f:
     return json.load(f)
 
+# Converte a lista de pontos de linhas para uma lista de tuplas de tuplas
 def convert_lines(points):
-  if len(points) % 2 != 0:
-    raise ValueError("A lista de pontos para linhas deve ter um número par de elementos.")
-  
-  # Cria uma lista de tuplas, onde cada tupla contém duas tuplas de pontos
-  return [((tuple(points[i]), tuple(points[i+1]))) for i in range(0, len(points), 2)]
+  # Cada elemento de 'points' é uma linha com duas tuplas de pontos
+  return [((tuple(line[0]), tuple(line[1]))) for line in points]
 
-# Converte a lista de pontos para uma tupla de tuplas
+
+def convert_curves(points):
+  p0_list, p1_list, m0_list, m1_list = [], [], [], []
+
+  for curve in points:
+    p0 = np.append(np.array(normalization(curve[0])), [0.0])
+    p1 = np.append(np.array(normalization(curve[1])), [0.0])
+    m0 = np.append(np.array(normalization(curve[2])), [0.0])
+    m1 = np.append(np.array(normalization(curve[3])), [0.0])
+
+    p0_list.append(p0)
+    p1_list.append(p1)  
+    m0_list.append(m0)
+    m1_list.append(m1)
+
+  return p0_list, p1_list, m0_list, m1_list
+
+# Converte a lista de pontos de polígonos para uma lista de tuplas de tuplas
 def convert_polygon(points):
   shapes = []  
   if points["Triangle"]:
@@ -185,6 +200,7 @@ def convert_polygon(points):
     shapes.append(tuple(tuple(point) for point in points["Hexagon"]))
   return shapes
 
+# Converte os dados para tuplas de acordo com o tipo de figura
 def convert_to_tuples(data):
   points = data["points"]
   
@@ -193,7 +209,12 @@ def convert_to_tuples(data):
   elif data["figura"] == "Polygon":
     return convert_polygon(points)
   elif data["figura"] == "Curve":
-    print("Not Implemented")
-    # return convert_curve(points)
+    return convert_curves(points)
   else:
     raise ValueError("Tipo de figura desconhecido.")
+
+#Examples json
+  
+# {"figura": "Line", "points": [[[1, 1], [1, 1]], [[2, 2], [2, 2]], [[3, 3], [3, 3]], [[4, 4], [4, 4]]]}
+# {"figura": "Curve", "points": [[[1, 1], [1, 1], [1, 1], [1, 1]], [[2, 2], [2, 2], [2, 2], [2, 2]], [[3, 3], [3, 3], [3, 3], [3, 3]], [[4, 4], [4, 4], [4, 4], [4, 4]]]}
+# {"figura": "Polygon", "points": {"Triangle": [[10, 10], [20, 20], [30, 10]], "Square": [[70,60],[70,75],[85,75],[85,60]], "Hexagon": [[15, 55], [30, 70], [50, 70], [65, 55], [50, 40], [30, 40]]}}

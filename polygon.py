@@ -16,11 +16,9 @@ def draw_line(x1, y1, x2, y2, image, color):
     if steep:
         x1, y1 = y1, x1
         x2, y2 = y2, x2
-    swapped = False
     if x1 > x2:
         x1, x2 = x2, x1
         y1, y2 = y2, y1
-        swapped = True
     dx = x2 - x1
     dy = y2 - y1
     error = int(dx / 2.0)
@@ -99,12 +97,9 @@ hexagon2 = [(0.95, 0.75), (0.85, 0.92),
             (0.85, 0.58), (0.95, 0.75)
             ]
 
-square = [(-0.8, -0.8), (-0.8, -0.4), (-0.8, -0.4), (-0.4, -0.4), (-0.4, -0.4), (-0.4, -0.8), (-0.4, -0.8), (-0.8, -0.8)]
-
 data = util.readFile()
 figures = util.convert_to_tuples(data)
 
-# triangle_clip = util.clip(((-2, -10), (75, 50), (50, 10)), (100,100)) # exemplo com recorte numa janela de 100x100
 polygons = []
 for fig in figures:
     polygon_clipped = util.clip_polygon(fig, (100,100))
@@ -113,19 +108,19 @@ for fig in figures:
         polygons_norm.append(util.normalization(point))
         
     polygons.append(polygons_norm)
+    # figuras de teste, mockadas
 
-# Lista de resoluções
-# resolutions = [(100, 100)]
-resolutions = [(100, 100), (300, 300), (800, 600), (1920, 1080)]
+# polygons = [triangle1, triangle2, square1, square2, hexagon1, hexagon2]
+
+
+
 # Cores para cada forma geométrica
 colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0), (255, 0, 255), (0, 255, 255)]
 
 # Rasteriza as formas geométricas em cada resolução e exibe em janelas separadas
-for resolution_x, resolution_y in resolutions:
+for resolution_x, resolution_y in util.get_resolutions():
     image = np.full((resolution_y, resolution_x, 3), 255, dtype=np.uint8)
-    shapes = [triangle1, triangle2, square1, square2, hexagon1, hexagon2]
-    # shapes = [square]
-    for i, shape in enumerate(shapes):
+    for i, shape in enumerate(polygons):
         color = colors[i]
         adjusted_shape = [map_coordinates(x, y, resolution_x, resolution_y) for x, y in shape]
         rasterize_polygon(adjusted_shape, image, color)

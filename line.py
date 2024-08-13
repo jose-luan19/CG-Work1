@@ -37,9 +37,9 @@ def raster_points (X_start, Y_start, X_end, Y_end ): # RECEBE O PONTO INICIAL E 
 
 # PONTOS
 lines = [((30,40),(30,70)), ((60,20),(90,60)), ((10,80),(200,80)), ((60,40),(10,10)), ((60,25), (25,10)), ((80,20),(90,5)), ((50,75),(76,50))]
-# lines = [((80,20),(90,5)), ((90,30),(70,50))]
-# data = util.readFile()
-# lines = util.convert_to_tuples(data)
+
+data = util.readFile()
+lines = util.convert_to_tuples(data)
 
 
 # PLOT DE GRÁFICO RASTERIZADO
@@ -56,6 +56,7 @@ for width, height in util.get_resolutions():
     # DENORMALIZANDO OS PONTOS PARA 
     start_point = util.denormalization(*start_point_norm, width, height)
     end_point = util.denormalization(*end_point_norm, width, height)
+    
     points = raster_points(*start_point, *end_point) # ACHAR PONTOS COM O ALGORITMO DE RASTERIZÇÃO
     matrix = util.plot_raster(points, width, height, matrix) # INCLUIR OS PONTOS NA MATRIZ 
   

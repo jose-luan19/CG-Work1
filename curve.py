@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image, ImageDraw
+import utils.util as util
+
 
 # A curva é calculada a partir da função parametrica cubica: P(t_x) = TC ; onde C = MG
 
@@ -66,6 +68,9 @@ m1_list = [np.array([5.0, 0.0, 0.0]),
            np.array([0.0, -5.0, 0.0]), 
            np.array([0.0, -5.0, 0.0]), 
            np.array([0.0, 0.0, 0.0])]
+
+data = util.readFile()
+p0_list, p1_list, m0_list, m1_list = util.convert_to_tuples(data)
 
 for resolution_x, resolution_y in resolutions:
     # Crie uma nova imagem PIL, ou seja uma imagem de fundo branco
