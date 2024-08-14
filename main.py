@@ -49,6 +49,8 @@ class ImageApp:
 
         # Adiciona o botão de submissão ao final
         tk.Button(self.inputs_frame, text="Submit", command=self.submit).grid(row=self.row_count, column=0, columnspan=4, pady=15)
+        tk.Label(self.inputs_frame, text="Pode por entradas para o plano 100x100 e será feito a normalização para as outras resoluções").grid(row=self.row_count+1, column=0, columnspan=4, pady=10)
+        
         
     def create_line_inputs(self):
         num_inputs = 16  # Default for Line
