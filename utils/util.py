@@ -1,6 +1,5 @@
 import json
 import math
-import random
 import numpy as np
 
 def get_resolutions():
@@ -18,12 +17,6 @@ def plot_raster(points, width, height, matrix):
       matrix[math.floor(y)][math.floor(x)] = 1
 
   return matrix
-
-def gen_point():
-  x = random.uniform(-1, 1)
-  y = random.uniform(-1, 1)
-
-  return (x, y)
 
 def denormalization(X, Y, width, height):
   rmin = -1
@@ -91,11 +84,12 @@ def findIntersection(code_point_out, start_point, end_point, window):
   return (x_new, y_new)
 
 # Função de recorte de linha utilizando o algoritmo de Cohen-Sutherland
-def cohenSutherland(start_point, end_point, window):
+def cohenSutherland_line(start_point, end_point, window):
   start_x, start_y = start_point
   end_x, end_y = end_point
 
   code_start_point = computeCode(start_point, window)
+
   code_end_point = computeCode(end_point, window)
   accept = False
 
@@ -103,7 +97,7 @@ def cohenSutherland(start_point, end_point, window):
     if code_start_point == 0 and code_end_point == 0:  # Ambos os pontos estão dentro da janela
       accept = True
       break
-    elif code_start_point & code_end_point != 0:  # Os pontos estão ambos em uma região da janela
+    elif code_start_point & code_end_point != 0:  # Os pontos estão ambos em uma região fora da janela
       break
     else:
       # Escolhe um ponto fora da janela
@@ -129,39 +123,50 @@ def cohenSutherland(start_point, end_point, window):
   else:
       return []
 
-# Função de recorte de polígono utilizando o algoritmo de Cohen-Sutherland
-def clipPolygon(polygon, window):
-  clipped_polygon = []
+# Método novo: Recorta uma aresta do polígono
+def clipPolygonEdge(polygon, edge_code, window):
+  new_polygon = []
+  n = len(polygon)
 
-  # Adiciona o primeiro ponto do polígono ao final para fechar o loop
-  polygon = polygon + (polygon[0],)
-
-  lenght_polygon = len(polygon)
-  # Recorte de cada lado do polígono
-  for i in range(lenght_polygon - 1):
+  for i in range(n):
     start_point = polygon[i]
-    end_point = polygon[i + 1]
-    
-    if i+1 == lenght_polygon-1:
-      clipped_segment = [start_point, clipped_polygon[0]]
-      clipped_polygon.extend(clipped_segment)
-      continue
-    else:
-      clipped_segment = cohenSutherland(start_point, end_point, window) 
+    end_point = polygon[(i + 1) % n]  # Conecta o último ponto ao primeiro
 
-    if clipped_segment:
-      clipped_polygon.extend(clipped_segment)
+    code_start = computeCode(start_point, window)
+    code_end = computeCode(end_point, window)
 
-  return clipped_polygon
+    if code_start & edge_code == 0 and code_end & edge_code == 0:
+      # Ambos os pontos dentro da janela
+      new_polygon.append(end_point)
+    elif code_start & edge_code != 0 and code_end & edge_code == 0:
+      # O ponto inicial está fora e o final está dentro
+      intersection = findIntersection(code_start, start_point, end_point, window)
+      new_polygon.append(intersection)
+      new_polygon.append(end_point)
+    elif code_start & edge_code == 0 and code_end & edge_code != 0:
+      # O ponto inicial está dentro e o final está fora
+      intersection = findIntersection(code_end, start_point, end_point, window)
+      new_polygon.append(intersection)
 
+  # Verifica se o primeiro ponto é igual ao último para garantir a circularidade
+  if len(new_polygon) > 0 and new_polygon[0] != new_polygon[-1]:
+    new_polygon.append(new_polygon[0])
 
-# Função que realiza o recorte em polígonos
-def clip_polygon(object, window):
-  return clipPolygon(object, window)
+  return new_polygon
+
+# Método novo: Recorta o polígono utilizando as quatro bordas da janela
+def clipPolygon(polygon, window=(100, 100)):
+  # Recorte nas quatro bordas (esquerda, direita, baixo, cima)
+  polygon = clipPolygonEdge(polygon, LEFT, window)   # Borda esquerda
+  polygon = clipPolygonEdge(polygon, RIGHT, window)  # Borda direita
+  polygon = clipPolygonEdge(polygon, BOTTOM, window) # Borda inferior
+  polygon = clipPolygonEdge(polygon, TOP, window)    # Borda superior
+
+  return polygon
 
 # Função que realiza o recorte em linhas
-def clip_line(object, window):
-  return cohenSutherland(object[0], object[1], window)
+def clip_line(object, window=(100,100)):
+  return cohenSutherland_line(object[0], object[1], window)
 
 def readFile():
   with open("data.json", "r") as f:

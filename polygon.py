@@ -102,14 +102,16 @@ figures = util.convert_to_tuples(data)
 
 polygons = []
 for fig in figures:
-    polygon_clipped = util.clip_polygon(fig, (100,100))
+    polygon_clipped = util.clipPolygon(fig)
+    if len(polygon_clipped) == 0:
+      continue
     polygons_norm = []
     for point in polygon_clipped:
         polygons_norm.append(util.normalization(point))
         
     polygons.append(polygons_norm)
-    # figuras de teste, mockadas
-
+    
+# figuras de teste, mockadas
 # polygons = [triangle1, triangle2, square1, square2, hexagon1, hexagon2]
 
 

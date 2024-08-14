@@ -36,7 +36,7 @@ def raster_points (X_start, Y_start, X_end, Y_end ): # RECEBE O PONTO INICIAL E 
   return points
 
 # PONTOS
-lines = [((30,40),(30,70)), ((60,20),(90,60)), ((10,80),(200,80)), ((60,40),(10,10)), ((60,25), (25,10)), ((80,20),(90,5)), ((50,75),(76,50))]
+lines = [((-10,50),(60,120)), ((30,40),(30,70)), ((60,20),(90,60)), ((10,80),(200,80)), ((60,40),(10,10)), ((60,25), (25,10)), ((80,20),(90,5)), ((50,75),(76,50))]
 
 data = util.readFile()
 lines = util.convert_to_tuples(data)
@@ -47,13 +47,16 @@ for width, height in util.get_resolutions():
   matrix = util.generate_matrix(0, width, height)
 
   for line in lines:
-    lines_cliping = util.clip_line(line, (100,100)) # exemplo com recorte numa janela de 100x100
+    lines_cliping = util.clip_line(line)
+    if len(lines_cliping) == 0:
+      continue
 
     # NORMALIZAR OS PONTOS QUE DESEJA USAR PARA RASTERIZAR A LINHA, USA-SE COMO BASE A RESOLUÇÃO 100X100
+    # É FEITO ISSO PARA QUE CADA RETA FIQUE IGUAL IDENPENDENTE DO PLANO
     start_point_norm = util.normalization(lines_cliping[0])
     end_point_norm = util.normalization(lines_cliping[1])
 
-    # DENORMALIZANDO OS PONTOS PARA 
+    # DENORMALIZANDO OS PONTOS PARA A RESOLUÇÃO DESEJADA
     start_point = util.denormalization(*start_point_norm, width, height)
     end_point = util.denormalization(*end_point_norm, width, height)
     
