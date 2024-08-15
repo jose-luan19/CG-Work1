@@ -7,7 +7,7 @@ import utils.util as util
 # A curva é calculada a partir da função parametrica cubica: P(t_x) = TC ; onde C = MG
 
 # Quantidade de amostras
-N = 1000
+N = 200
 
 # Defina a matriz de transformação de Hermite
 M = np.array([[2, -2, 1, 1],
@@ -46,31 +46,35 @@ resolutions = [(100, 100), (300, 300), (800, 600), (1920, 1080)]
 
 # Defina as listas de pontos de controle p0, p1, m0 e m1 para as 5 curvas
 p0_list = [np.array([0.0, 0.0, 0.0]), 
-           np.array([0.0, 0.0, 0.0]), 
-           np.array([0.0, 0.0, 0.0]), 
-           np.array([0.0, 0.0, 0.0]), 
-           np.array([0.0, 0.0, 0.0])]
+           np.array([-0.6, 0.0, 0.0]), 
+           np.array([-0.7, 0.7, 0.0]), 
+           np.array([0.8, 0.0, 0.0]), 
+           np.array([-1.0, -1.0, 0.0])
+           ]
 
-p1_list = [np.array([1.0, 1.0, 0.0]), 
-           np.array([-1.0, 1.0, 0.0]), 
-           np.array([-1.0, -1.0, 0.0]), 
-           np.array([1.0, -1.0, 0.0]), 
-           np.array([0.0, 0.0, 0.0])]
+p1_list = [np.array([0.0, 0.0, 0.0]), 
+           np.array([0.6, 0.0, 0.0]), 
+           np.array([0.4, 0.7, 0.0]), 
+           np.array([0.9, 0.9, 0.0]), 
+           np.array([-0.3, 0.3, 0.0])
+           ]
 
-m0_list = [np.array([5.0, 0.0, 0.0]), 
-           np.array([-5.0, 0.0, 0.0]), 
-           np.array([0.0, -5.0, 0.0]), 
-           np.array([0.0, -5.0, 0.0]), 
-           np.array([0.0, 0.0, 0.0])]
+m0_list = [np.array([2.0, 0.0, 0.0]), 
+           np.array([0.5, 3.0, 0.0]), 
+           np.array([0.9, 2.8, 0.0]), 
+           np.array([0.5, -0.5, 0.0]), 
+           np.array([0.5, -0.6, 0.0])
+           ]
 
-m1_list = [np.array([5.0, 0.0, 0.0]), 
-           np.array([-5.0, 0.0, 0.0]), 
-           np.array([0.0, -5.0, 0.0]), 
-           np.array([0.0, -5.0, 0.0]), 
-           np.array([0.0, 0.0, 0.0])]
+m1_list = [np.array([0.0, 2.0, 0.0]), 
+           np.array([0.0, 0.0, 0.0]), 
+           np.array([0.2, 2.4, 0.0]), 
+           np.array([0.5, 0.5, 0.0]), 
+           np.array([-0.7, 5.0, 0.0])
+           ]
 
 data = util.readFile()
-p0_list, p1_list, m0_list, m1_list = util.convert_to_tuples(data)
+# p0_list, p1_list, m0_list, m1_list = util.convert_to_tuples(data)
 
 for resolution_x, resolution_y in resolutions:
     # Crie uma nova imagem PIL, ou seja uma imagem de fundo branco
@@ -78,11 +82,15 @@ for resolution_x, resolution_y in resolutions:
     # Cria objeto que será usado para desenhar na imagem que está associada
     draw = ImageDraw.Draw(image)
 
-    for i in range(4):
+    for i in range(5):
         p0 = p0_list[i]
         p1 = p1_list[i]
         m0 = m0_list[i]
         m1 = m1_list[i]
+        print("p0\n" + str(util.denormalization(p0[0], p0[1], 100, 100)))
+        print("p1\n" + str(util.denormalization(p1[0], p1[1], 100, 100)))
+        print("m0\n" + str(util.denormalization(m0[0], m0[1], 100, 100)))
+        print("m1\n" + str(util.denormalization(m1[0], m1[1], 100, 100)))
 
         x_curve, y_curve = rasterize_hermite_curve(p0, p1, m0, m1)
 
