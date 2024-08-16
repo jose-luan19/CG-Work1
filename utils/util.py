@@ -161,7 +161,7 @@ def clipPolygon(polygon, window=(100, 100)):
   polygon = clipPolygonEdge(polygon, RIGHT, window)  # Borda direita
   polygon = clipPolygonEdge(polygon, BOTTOM, window) # Borda inferior
   polygon = clipPolygonEdge(polygon, TOP, window)    # Borda superior
-
+  
   return polygon
 
 # Função que realiza o recorte em linhas
@@ -196,13 +196,13 @@ def convert_curves(points):
 
 # Converte a lista de pontos de polígonos para uma lista de tuplas de tuplas
 def convert_polygon(points):
-  shapes = []  
-  if points["Triangle"]:
-    shapes.append(tuple(tuple(point) for point in points["Triangle"]))
-  if points["Square"]:
-    shapes.append(tuple(tuple(point) for point in points["Square"]))
-  if points["Hexagon"]:
-    shapes.append(tuple(tuple(point) for point in points["Hexagon"]))
+  shapes = []
+  
+  for polygon_type in ["Triangle", "Square", "Hexagon"]:
+    for polygon in points[polygon_type]:
+      if polygon:  # Se o polígono não estiver vazio
+        shapes.append([tuple(point) for point in polygon])
+  
   return shapes
 
 # Converte os dados para tuplas de acordo com o tipo de figura
