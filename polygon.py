@@ -120,7 +120,6 @@ for width, height in util.get_resolutions():
 
       # Plotando o resultado
       plt.imshow(canvas, extent=(0, width, 0, height), origin="lower")
-      plt.gca().set_facecolor('white')
       plt.title(f'Polygon - Resolution: {width}x{height}')
       plt.xlabel('Eixo X')
       plt.ylabel('Eixo Y')
