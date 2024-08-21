@@ -75,7 +75,10 @@ m1_list = [np.array([0.0, 2.0, 0.0]),
 
 
 data = util.readFile()
-p0_list, p1_list, m0_list, m1_list = util.convert_to_tuples(data)
+if(data["figura"] == "Curve" ):
+    p0_list, p1_list, m0_list, m1_list = util.convert_to_tuples(data)
+
+
 
 for resolution_x, resolution_y in resolutions:
     # Crie uma nova imagem PIL, ou seja uma imagem de fundo branco

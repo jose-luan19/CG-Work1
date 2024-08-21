@@ -1,136 +1,131 @@
-import matplotlib.pyplot as plt
 import numpy as np
-
+import matplotlib.pyplot as plt
 import utils.util as util
 
 
-# Função para mapear as coordenadas de -1 a 1 para a resolução desejada
-def map_coordinates(x, y, resolution_x, resolution_y):
-    mapped_x = int((x + 1) * (resolution_x / 2))
-    mapped_y = int((1 - y) * (resolution_y / 2))
-    return mapped_x, mapped_y
+class ScanlinePolygonFiller:
+    def __init__(self, vertices, color_value):
+        if len(vertices) < 3:
+            raise ValueError("Um polígono deve ter pelo menos 3 vértices.")
+        self.vertices = vertices
+        self.color_value = color_value
+        self.edges = self._compute_edges()
 
-# Função para desenhar uma linha entre dois pontos
-def draw_line(x1, y1, x2, y2, image, color):
-    steep = abs(y2 - y1) > abs(x2 - x1)
-    if steep:
-        x1, y1 = y1, x1
-        x2, y2 = y2, x2
-    if x1 > x2:
-        x1, x2 = x2, x1
-        y1, y2 = y2, y1
-    dx = x2 - x1
-    dy = y2 - y1
-    error = int(dx / 2.0)
-    ystep = 1 if y1 < y2 else -1
-    y = y1
-    for x in range(x1, x2 + 1):
-        if steep:
-            if 0 <= x < image.shape[1] and 0 <= y < image.shape[0]:
-                image[y, x, :] = color
-        else:
-            if 0 <= y < image.shape[0] and 0 <= x < image.shape[1]:
-                image[y, x, :] = color
-        error -= abs(dy)
-        if error < 0:
-            y += ystep
-            error += dx
+    def _compute_edges(self):
+        edges = []
+        num_vertices = len(self.vertices)
+        for i in range(num_vertices):
+            x0, y0 = self.vertices[i]
+            x1, y1 = self.vertices[(i + 1) % num_vertices]
+            if y0 != y1:  # Ignora linhas horizontais
+                edges.append((x0, y0, x1, y1))
+        return edges
 
-# Função para determinar o mínimo e o máximo de y para cada varredura
-def scan_polygon(vertices):
-    min_y = min(vertices, key=lambda v: v[1])[1]
-    max_y = max(vertices, key=lambda v: v[1])[1]
-    return min_y, max_y
+    def _fill_scanline(self, canvas, y):
+        x_intersections = []
+        for x0, y0, x1, y1 in self.edges:
+            if y0 > y1:
+                x0, x1 = x1, x0
+                y0, y1 = y1, y0
+            if y0 <= y < y1:
+                if y1 != y0:
+                    x = x0 + (y - y0) * (x1 - x0) / (y1 - y0)
+                    x_intersections.append(x)
+        x_intersections.sort()
+        for i in range(0, len(x_intersections), 2):
+            x_start = int(np.ceil(x_intersections[i]))
+            x_end = int(np.floor(x_intersections[i + 1])) - 1
+            if x_start <= x_end:
+                canvas[y, x_start : x_end + 1] = self.color_value
 
-# Função para rasterizar o polígono convexo com coordenadas mapeadas
-def rasterize_polygon(vertices, image, color):
-    min_y, max_y = scan_polygon(vertices)
-    for y in range(min_y, max_y + 1):
-        intersections = []
-        for i in range(len(vertices)):
-            x1, y1 = vertices[i]
-            x2, y2 = vertices[(i + 1) % len(vertices)]
-            if (y1 <= y and y2 > y) or (y2 <= y and y1 > y):
-                if y1 == y2:
-                    intersections.append(x1)
-                else:
-                    intersections.append(x1 + (y - y1) / (y2 - y1) * (x2 - x1))
-        intersections.sort()
-        for i in range(0, len(intersections), 2):
-            x1 = int(intersections[i])
-            x2 = int(intersections[i + 1])
-            draw_line(x1, y, x2, y, image, color)
+    def fill_polygon(self, canvas):
+        num_rows, num_cols, _ = canvas.shape
+        for y in range(num_rows):
+            self._fill_scanline(canvas, y)
 
-# Define as coordenadas dos vértices dos triângulos, quadrados e hexágonos no intervalo de -1 a 1
-triangle1 = [(-1, -1),(-0.75, -0.50), 
-             (-0.75, -0.50),(-0.50, -1), 
-             (-0.50, -1), (-1, -1)
-            ]
-triangle2 = [(-0.25, -0.5),(0.25, -0.5), 
-             (0.25, -0.5),(0, 0), 
-             (0, 0),(-0.25, -0.5)
-            ]
 
-square1 = [(-1, 1),(-0.50, 1), 
-           (-0.50, 1),(-0.50, 0.50), 
-           (-1, 0.50),(-1, 0.50), 
-           (-1, 0.50),(-1, 1)
-           ]
-square2 = [(0, -1),(0.25, -1), 
-           (0.25, -1),(0.25, -0.75), 
-           (0.25, -0.75),(0, -0.75), 
-           (0, -0.75),(0, -1)
-           ]
+def rasterize_polygon(vertices, width, height, color_value):
+    canvas = np.zeros((height, width, 3), dtype=np.uint8)  # RGB canvas
+    filler = ScanlinePolygonFiller(vertices, color_value)
+    filler.fill_polygon(canvas)
+    return canvas
 
-hexagon1 = [(-0.25, 0.5), (0, 0.25), 
-            (0, 0.25), (0.25, 0.25), 
-            (0.25, 0.25), (0.5, 0.5), 
-            (0.5, 0.5), (0.25, 0.75), 
-            (0.25, 0.75), (0, 0.75), 
-            (0, 0.75), (-0.25, 0.5)
-            ]
-hexagon2 = [(0.95, 0.75), (0.85, 0.92),
-            (0.85, 0.92), (0.65, 0.92),
-            (0.65, 0.92), (0.55, 0.75),
-            (0.55, 0.75), (0.65, 0.58),
-            (0.65, 0.58), (0.85, 0.58),
-            (0.85, 0.58), (0.95, 0.75)
-            ]
 
+def normalize_vertices(vertices):
+    normalized = []
+    for point in vertices:
+        point_norm = util.normalization(point)
+        normalized.append(point_norm)
+    return normalized
+
+
+def denormalize_vertices(vertices, width, height):
+    denormalized = []
+    for point in vertices:
+        point_denor = util.denormalization(*point, width, height)
+        denormalized.append(point_denor)
+    return denormalized
+
+
+# Definindo os vértices dos triângulos
+triangle1 = [(10, 10), (20, 10), (20, 20)]  # Triângulo no canto superior esquerdo
+triangle2 = [(70, 70), (80, 50), (130, 90)]  # Triângulo no canto inferior direito
+
+square1 = [(20, 60), (20, 80), (40, 80), (40, 60)]  # Quadrado no canto superior direito
+square2 = [(20, 40), (20, 60), (40, 60), (40, 40)]  # Quadrado no canto inferior direito
+
+hexagon1 = [(25,35 ), (35, 35), (40, 30), (35, 25), (25, 25), (20, 30)]  # Hexágono no centro superior
+hexagon2 = [(65, 75), (75, 75), (80, 70), (75, 65), (65, 65), (60, 70)]
+
+figures = [triangle1, triangle2, square1, square2, hexagon1, hexagon2]
 data = util.readFile()
-figures = util.convert_to_tuples(data)
+if(data["figura"] == "Polygon" ):
+    figures = util.convert_to_tuples(data)
+    
+polygon_clippeds = []
+for fig in figures:
+    polygon_clippeds.append(util.clipPolygon(fig))
+    if len(polygon_clippeds) == 0:
+        continue
+
+
+# Cores distintas para cada triângulo (em formato RGB)
+colors = [
+    (255, 0, 0),
+    (0, 255, 0),
+    (0, 0, 255),
+    (255, 255, 0),
+    (255, 0, 255),
+    (0, 255, 255),
+]
+
 
 polygons = []
-for fig in figures:
-    polygon_clipped = util.clipPolygon(fig)
-    if len(polygon_clipped) == 0:
-      continue
-    polygons_norm = []
-    for point in polygon_clipped:
-        polygons_norm.append(util.normalization(point))
-        
-    polygons.append(polygons_norm)
-    
-# figuras de teste, mockadas
-# polygons = [triangle1, triangle2, square1, square2, hexagon1, hexagon2]
+
+for i, polygon in enumerate(polygon_clippeds):
+    polygons.append((polygon, colors[i]))
 
 
+for width, height in util.get_resolutions():
+      canvas = np.zeros((height, width, 3), dtype=np.uint8)
 
-# Cores para cada forma geométrica
-colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0), (255, 0, 255), (0, 255, 255)]
+      for vertices, color_value in polygons:
+            # Normalizar as coordenadas dos polígonos para o intervalo [0, 1]
+            normalized_vertices = normalize_vertices(vertices)
+            # Rasterizar o polígono normalizado
+            denormalized_vertices = denormalize_vertices(normalized_vertices, width, height)
+            canvas = np.maximum(
+                  canvas, rasterize_polygon(denormalized_vertices, width, height, color_value)
+            )
 
-# Rasteriza as formas geométricas em cada resolução e exibe em janelas separadas
-for resolution_x, resolution_y in util.get_resolutions():
-    image = np.full((resolution_y, resolution_x, 3), 255, dtype=np.uint8)
-    for i, shape in enumerate(polygons):
-        color = colors[i]
-        adjusted_shape = [map_coordinates(x, y, resolution_x, resolution_y) for x, y in shape]
-        rasterize_polygon(adjusted_shape, image, color)
-    plt.imshow(image, extent=(0, resolution_x, 0, resolution_y), origin="upper")
-    plt.title(f'Polygon - Resolution: {resolution_x}x{resolution_y}')
-    plt.xlabel('Eixo X')
-    plt.ylabel('Eixo Y')
-    plt.grid(True)
-    file_name = f'polygons-image/polygons_{resolution_x}x{resolution_y}.png'
-    plt.savefig(file_name)
-    plt.show()
+      # Plotando o resultado
+      plt.imshow(canvas, extent=(0, width, 0, height), origin="lower")
+      plt.gca().set_facecolor('white')
+      plt.title(f'Polygon - Resolution: {width}x{height}')
+      plt.xlabel('Eixo X')
+      plt.ylabel('Eixo Y')
+      plt.grid(True)
+      file_name = f'polygons-image/polygons_{width}x{height}.png'
+      plt.savefig(file_name)
+      plt.show()
+

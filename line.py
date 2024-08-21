@@ -8,17 +8,19 @@ def raster_points (X_start, Y_start, X_end, Y_end ): # RECEBE O PONTO INICIAL E 
   y = Y_start  # DECLARA O PONTO INICIAL NO EIXO Y DE ONDE A RETA SERÁ INCREMENTADA OU DECREMENTADA
   points = [(round(x),round(y))]
   
-  dx = X_end - X_start  # VARIÁVEL QUE RECEBE O MÓDULO DA DIFERENÇA ENTRE X2 E X1
-  dy = Y_end - Y_start  # VARIÁVEL QUE RECEBE O MÓDULO DA DIFERENÇA ENTRE Y_end E Y_start
+  dx = X_end - X_start  # VARIÁVEL QUE RECEBE A DIFERENÇA ENTRE X_end E X_start
+  dy = Y_end - Y_start  # VARIÁVEL QUE RECEBE A DIFERENÇA ENTRE Y_end E Y_start
 
   # FUNÇÃO SEMI-RETA: y = m * x + b
   m = 0 if dx == 0 else dy / dx
+  # NO CASO DE NÃO TER ANGULAÇÃO O 'M' É 0
+  # SÃO DOIS CASOS, ONDE DX É ZERO JÁ COLOCA O ZERO PARA QUE NÃO HAJA DIVISÃO POR 0 E SE DY FOR 0 ELE SENDO DIVIDIDO POR QUALQUER COISA RESULTA EM 0
 
   b =  y - m * x
 
   # ITERAR NO EIXO X
   if math.fabs(dx) >= math.fabs(dy):
-    step_x = 1 if X_start < X_end else -1 # VERIFICA SE IRÁ INCREMENTAR OU DECREMENTAR
+    step_x = 1 if X_start < X_end else -1 # VERIFICA SE IRÁ INCREMENTAR OU DECREMENTAR, OU SEJA PARA DIREITA OU PARA ESQUERDA
     while x != X_end:
       x += step_x
       y = m * x + b # ACHA O PONTO Y A PARTIR DA FUNÇÃO DE SEMI-RETA
@@ -26,7 +28,7 @@ def raster_points (X_start, Y_start, X_end, Y_end ): # RECEBE O PONTO INICIAL E 
 
   # ITERAR NO EIXO Y
   else:
-    step_y = 1 if Y_start < Y_end else -1  # VERIFICA SE IRÁ INCREMENTAR OU DECREMENTAR
+    step_y = 1 if Y_start < Y_end else -1  # VERIFICA SE IRÁ INCREMENTAR OU DECREMENTAR, OU SEJA PARA CIMA OU PARA BAIXO
     while y != Y_end:
       y += step_y
       if m != 0:
@@ -35,11 +37,20 @@ def raster_points (X_start, Y_start, X_end, Y_end ): # RECEBE O PONTO INICIAL E 
 
   return points
 
+def include_fragments(points, width, height, matrix):
+  for x, y in points:
+    if 0 <= y < height and 0 <= x < width:
+      matrix[math.floor(y)][math.floor(x)] = 1
+
+  return matrix
+
 # PONTOS
 lines = [((-10,50),(60,120)), ((30,40),(30,70)), ((60,20),(90,60)), ((10,80),(200,80)), ((60,40),(10,10)), ((60,25), (25,10)), ((80,20),(90,5)), ((50,75),(76,50))]
 
 data = util.readFile()
-lines = util.convert_to_tuples(data)
+if(data["figura"] == "Line" ):
+  lines = util.convert_to_tuples(data)
+
 
 
 # PLOT DE GRÁFICO RASTERIZADO
@@ -61,7 +72,7 @@ for width, height in util.get_resolutions():
     end_point = util.denormalization(*end_point_norm, width, height)
     
     points = raster_points(*start_point, *end_point) # ACHAR PONTOS COM O ALGORITMO DE RASTERIZÇÃO
-    matrix = util.plot_raster(points, width, height, matrix) # INCLUIR OS PONTOS NA MATRIZ 
+    matrix = include_fragments(points, width, height, matrix) # INCLUIR OS PONTOS NA MATRIZ 
   
 
   plt.imshow(matrix, cmap='Blues', extent=(0, width, 0, height), origin='lower')

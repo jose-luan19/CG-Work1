@@ -11,13 +11,6 @@ def generate_matrix(fill_value, width, height):
 def add_point(x, y, points):
   points.append((round(x), round(y)))
 
-def plot_raster(points, width, height, matrix):
-  for x, y in points:
-    if 0 <= y < height and 0 <= x < width:
-      matrix[math.floor(y)][math.floor(x)] = 1
-
-  return matrix
-
 def denormalization(X, Y, width, height):
   rmin = -1
   rmax = 1
@@ -49,7 +42,8 @@ def computeCode(point, window):
   code = INSIDE
   x , y = point
   width, height = window
-
+  
+# '|=' OR bit a bit atribuído
   if x < 0:
     code |= LEFT
   elif x > width:
@@ -62,23 +56,33 @@ def computeCode(point, window):
 
   return code
 
-  # Encontra a interseção
+# Dependendo do código da região, aqui calcula o ponto de interseção da linha com a borda
 def findIntersection(code_point_out, start_point, end_point, window):
   start_x, start_y = start_point
   end_x, end_y = end_point
   width, height = window
+  dx = end_x - start_x
+  dy = end_y - start_y
 
   if code_point_out & TOP:
-    x_new = start_x + (end_x - start_x) * (height - start_y) / (end_y - start_y)
+    # (height - start_y) calcula a distância vertical entre o ponto inicial da linha e o topo da janela.
+    # (dx) * (height - start_y) / (dy) Mudança correspondente em x para que a linha alcance a borda superior.
+    x_new = start_x + (dx) * (height - start_y) / (dy)
     y_new = height
   elif code_point_out & BOTTOM:
-    x_new = start_x + (end_x - start_x) * (0 - start_y) / (end_y - start_y)
+    # (0 - start_y) calcula a distância vertical entre o ponto inicial da linha e o fundo da janela.
+    # (dx) * (0 - start_y) / (dy) Mudança correspondente em x para que a linha alcance a borda inferior.
+    x_new = start_x + (dx) * (0 - start_y) / (dy)
     y_new = 0
   elif code_point_out & RIGHT:
-    y_new = start_y + (end_y - start_y) * (width - start_x) / (end_x - start_x)
+    # (width - start_x) calcula a distância horizontal entre o ponto inicial da linha e a borda da direita da janela.
+    # (dx) * (height - start_y) / (dy) Mudança correspondente em y para que a linha alcance a borda da direita.
+    y_new = start_y + (dy) * (width - start_x) / (dx)
     x_new = width
   elif code_point_out & LEFT:
-    y_new = start_y + (end_y - start_y) * (0 - start_x) / (end_x - start_x)
+    # (0 - start_x) calcula a distância horizontal entre o ponto inicial da linha e a borda da esquerda da janela.
+    # (dx) * (height - start_y) / (dy) Mudança correspondente em y para que a linha alcance a borda da esquerda.
+    y_new = start_y + (dy) * (0 - start_x) / (dx)
     x_new = 0
 
   return (x_new, y_new)
@@ -100,57 +104,52 @@ def cohenSutherland_line(start_point, end_point, window):
     elif code_start_point & code_end_point != 0:  # Os pontos estão ambos em uma região fora da janela
       break
     else:
-      # Escolhe um ponto fora da janela
       x_new = 0
       y_new = 0
+      # Verifica qual ponto está fora da janela e põe na variavel code_point_out
       if code_start_point != 0:
         code_point_out = code_start_point
       else:
         code_point_out = code_end_point
 
+      #Encontra a interscção do ponto nessa interação ponde ser para o start ou end point,
+      # depende da verificação anterior qual atribuiu seu valor ao code_point_out
       x_new, y_new = findIntersection(code_point_out, start_point, end_point, window)
 
-      # Atualiza o ponto fora da janela
+      # Verifica se o ponto que está fora da janela é o start ou end
       if code_point_out == code_start_point:
-        start_x, start_y = x_new, y_new
-        code_start_point = computeCode((x_new, y_new), window)
+        start_x, start_y = x_new, y_new # Atualiza o ponto fora da janela
+        code_start_point = computeCode((x_new, y_new), window) # calcula novamente para verificar se ponto entrou na janela
       else:
-        end_x, end_y = x_new, y_new
-        code_end_point = computeCode((x_new, y_new), window)
+        end_x, end_y = x_new, y_new # Atualiza o ponto fora da janela
+        code_end_point = computeCode((x_new, y_new), window) # calcula novamente para verificar se ponto entrou na janela
 
   if accept:
       return [(start_x, start_y), (end_x, end_y)]
   else:
       return []
 
-# Método novo: Recorta uma aresta do polígono
 def clipPolygonEdge(polygon, edge_code, window):
   new_polygon = []
-  n = len(polygon)
-
-  for i in range(n):
+  for i in range(len(polygon)):
     start_point = polygon[i]
-    end_point = polygon[(i + 1) % n]  # Conecta o último ponto ao primeiro
+    end_point = polygon[(i + 1) % len(polygon)]
 
     code_start = computeCode(start_point, window)
     code_end = computeCode(end_point, window)
 
+    # Ambos os pontos dentro da janela
     if code_start & edge_code == 0 and code_end & edge_code == 0:
-      # Ambos os pontos dentro da janela
       new_polygon.append(end_point)
+    # O ponto inicial está fora e o final está dentro
     elif code_start & edge_code != 0 and code_end & edge_code == 0:
-      # O ponto inicial está fora e o final está dentro
       intersection = findIntersection(code_start, start_point, end_point, window)
       new_polygon.append(intersection)
       new_polygon.append(end_point)
+    # O ponto inicial está dentro e o final está fora
     elif code_start & edge_code == 0 and code_end & edge_code != 0:
-      # O ponto inicial está dentro e o final está fora
       intersection = findIntersection(code_end, start_point, end_point, window)
       new_polygon.append(intersection)
-
-  # Verifica se o primeiro ponto é igual ao último para garantir a circularidade
-  if len(new_polygon) > 0 and new_polygon[0] != new_polygon[-1]:
-    new_polygon.append(new_polygon[0])
 
   return new_polygon
 
